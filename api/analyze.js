@@ -1,51 +1,48 @@
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Use POST" });
-  }
-
-  const { transcript } = req.body || {};
-
-  if (!transcript) {
-    return res.status(400).json({ error: "Missing transcript" });
-  }
-
   try {
-    const prompt = `
-    You are a sales coach analyzing a call transcript. 
-    Return JSON only with:
-    - strongest: []
-    - weakest: []
-    - suggestions: []
-    - summary: ""
-    Transcript:
-    ${transcript}
-    `;
+    const { transcript } = req.body;
+
+    if (!transcript) {
+      return res.status(400).json({ error: "Transcript missing." });
+    }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.OPENAI_KEY}`,
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.2,
-      }),
+        messages: [
+          {
+            role: "system",
+            content: "You are a sales call analysis assistant.",
+          },
+          {
+            role: "user",
+            content: `
+Analyze the following sales call transcript and provide:
+
+1. Strongest moments (what the rep did well)
+2. Points that could be improved 
+3. Opportunities the rep may have missed
+4. Trends or patterns worth noting
+5. A success score from 1–10
+
+Transcript:
+${transcript}
+`
+          }
+        ]
+      })
     });
 
-    if (!response.ok) {
-      const error = await response.text();
-      return res.status(500).json({ error });
-    }
-
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
 
-    return res.status(200).json({ result: text });
+    res.status(200).json({ analysis: data.choices[0].message.content });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Internal error." });
   }
 }
