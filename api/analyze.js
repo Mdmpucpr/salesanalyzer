@@ -12,21 +12,19 @@ export default async function handler(req, res) {
     }
 
     // 3. Environment Variable Check
-    // NOTE: Using GEMINI_KEY as defined in your code.
     if (!process.env.GEMINI_KEY) {
       return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
     }
 
     // 4. Correct API Configuration
     // ----------------------------------------------------------------------
-    // *** CRITICAL CHANGE: Updating model to gemini-3-flash ***
-    // NOTE: The base URL remains the same for V1 endpoints.
-    const modelName = "gemini-3-flash"; 
+    // *** CRITICAL FIX: Reverting model to the working V1 model ***
+    const modelName = "gemini-2.5-flash"; // This model is supported on the V1 Beta endpoint
     const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
     const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
     // ----------------------------------------------------------------------
 
-    // 5. Standard Gemini Request Body with FINAL STRUCTURE FIX
+    // 5. Standard Gemini Request Body
     const body = {
       contents: [{
         role: "user",
