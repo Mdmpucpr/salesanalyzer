@@ -9,14 +9,30 @@ function App() {
     setLoading(true);
     setOutput(null);
 
-    const resp = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcript }),
-    });
+    try {
+      const resp = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript }),
+      });
 
-    const data = await resp.json();
-    setOutput(data.result || data.error);
+      // If backend responds with non-JSON (like 404 HTML), catch it
+      const text = await resp.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setOutput("Error: Server returned non-JSON response.");
+        setLoading(false);
+        return;
+      }
+
+      setOutput(data.result || data.error || "No output.");
+    } catch (err) {
+      setOutput("Network error. API unreachable.");
+    }
+
     setLoading(false);
   }
 

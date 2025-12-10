@@ -37,9 +37,9 @@ ${transcript}
 
     console.log("RAW OPENAI RESPONSE:", JSON.stringify(data, null, 2));
 
-    // Extract output properly for the Responses API
     let finalText = "";
 
+    // Responses API extraction
     if (data.output?.[0]?.content?.[0]?.text) {
       finalText = data.output[0].content[0].text;
     } else if (data.output_text) {
@@ -54,13 +54,13 @@ ${transcript}
       finalText = JSON.stringify(finalText);
     }
 
-    res.status(200).json({ analysis: finalText });
+    return res.status(200).json({ result: finalText });
 
   } catch (err) {
     console.error("Server error:", err);
 
-    res.status(500).json({
-      analysis: `Server Error: ${err.message || "Unknown error"}`
+    return res.status(500).json({
+      result: `Server Error: ${err.message || "Unknown error"}`
     });
   }
 }
