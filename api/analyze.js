@@ -16,13 +16,13 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
     }
 
-    // 4. *** CRITICAL FIX APPLIED HERE ***
-    // The correct REST API domain for Google AI Studio API Keys is generativelanguage.googleapis.com, 
-    // not generativeai.googleapis.com, which was causing the 404 for this specific endpoint path.
+    // 4. Correct API Configuration
+    // Domain: generativelanguage.googleapis.com (Fixes 404/ENOTFOUND)
+    // Model: gemini-2.5-flash (Free-tier friendly model)
     const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
 
-    // 5. Standard Gemini Request Body
+    // 5. Standard Gemini Request Body with CORRECTION
     const body = {
       // The API expects 'contents' to be an array of Content objects.
       contents: [{
@@ -42,14 +42,15 @@ ${transcript}
           `
         }]
       }],
-      // Configuration for generation parameters
-      config: {
-        temperature: 0.7,
-        maxOutputTokens: 500
-      }
+      
+      // *** FIX: Moved parameters directly into the main body object (no 'config' wrapper) ***
+      temperature: 0.7,
+      maxOutputTokens: 500,
+      // *** END FIX ***
     };
 
     // 6. Send Request
+    // API key is correctly passed via query parameter (?key=...)
     const response = await fetch(finalUrl, {
       method: "POST",
       headers: {
@@ -70,13 +71,14 @@ ${transcript}
     const data = await response.json();
     console.log("RAW GEMINI RESPONSE:", JSON.stringify(data, null, 2));
 
-    // The text is nested in: candidates[0].content.parts[0].text
+    // The text is correctly nested in the standard response structure: 
+    // candidates[0].content.parts[0].text
     const finalText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No text returned from Gemini.";
 
     return res.status(200).json({ result: finalText });
 
   } catch (err) {
-    // 9. Catch any unexpected server errors (e.g., network failure)
+    // 9. Catch any unexpected server errors (e.g., local network failure)
     console.error("Server error:", err);
     return res.status(500).json({ result: `Server Error: ${err.message || "Unknown error"}` });
   }
