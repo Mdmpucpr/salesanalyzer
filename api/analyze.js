@@ -25,30 +25,36 @@ Analyze the following sales call transcript and provide:
 
 Transcript:
 ${transcript}
-        `
-      })
+        `,
+      }),
     });
 
     const data = await response.json();
+
+    // 🔥 Log the full raw response for debugging
+    console.log("FULL OPENAI RAW RESPONSE:", JSON.stringify(data, null, 2));
 
     if (data.error) {
       console.error("OpenAI error:", data.error);
       return res.status(500).json({ error: data.error });
     }
 
-    // Extract the response text properly using the new API structure
+    // 🔥 Extract text safely (covers every response shape)
     let outputText = "";
-    if (
-      data.output &&
-      Array.isArray(data.output) &&
-      data.output[0]?.content &&
-      data.output[0].content[0]?.text
-    ) {
-      outputText = data.output[0].content[0].text;
-    } else {
-      console.error("Unexpected OpenAI response format:", data);
-      return res.status(500).json({ error: "Invalid response format" });
+
+    try {
+      outputText =
+        data.output?.[0]?.content?.[0]?.text ??
+        data.output_text ??
+        data.choices?.[0]?.text ??
+        JSON.stringify(data);
+    } catch (err) {
+      console.error("Failed extracting output text:", err);
+      outputText = "No valid text returned from OpenAI.";
     }
+
+    // 🔥 Log final text you will return
+    console.log("FINAL OUTPUT TEXT:", outputText);
 
     res.status(200).json({ analysis: outputText });
 
