@@ -28,7 +28,6 @@ const TranscriptAnalyzer = ({ transcript, setTranscript, analyze, loading, outpu
         {/* Output/Error Display */}
         {output && (
             <div className="error-message-box" style={{ 
-                // Simple inline style to differentiate success/error for now
                 backgroundColor: output.startsWith('Error') || output.startsWith('Gemini API error') 
                     ? '#f8d7da' 
                     : '#e9f7ef',
@@ -75,7 +74,6 @@ const DashboardContent = () => {
                     <div className="card-subtext">Estimated wins per 100 calls</div>
                 </div>
             </div>
-            {/* ... other dashboard sections like charts and lists would go here ... */}
         </div>
     );
 };
@@ -90,7 +88,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [output, setOutput] = useState(null);
 
-    // Existing API analysis function
+    // Existing API analysis function (omitted for brevity, assume it's the same)
     async function analyze() {
         setLoading(true);
         setOutput(null);
@@ -113,7 +111,6 @@ function App() {
                 return;
             }
             
-            // Display error if present, otherwise display result
             setOutput(data.result || data.error || "No output.");
 
         } catch (err) {
@@ -129,7 +126,6 @@ function App() {
             case 'Dashboard':
                 return <DashboardContent />;
             case 'Calls':
-                // Removed specific client name placeholder here
                 return (
                     <>
                         <h1 className="dashboard-title">Call Library</h1>
@@ -154,7 +150,7 @@ function App() {
                     <>
                         <h1 className="dashboard-title">Detailed Analytics</h1>
                         <p className="dashboard-subtitle">Deep insights into your sales performance, patterns, and trends.</p>
-                        <DashboardContent /> {/* Reusing the card layout */}
+                        <DashboardContent />
                     </>
                 );
             case 'Upload':
@@ -169,33 +165,35 @@ function App() {
         <>
             {/* 1. NAVIGATION BAR STRUCTURE */}
             <header className="navbar">
-                <div className="logo-section">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="logo-icon">
-                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 14h-2v-6h2v6zm0-8h-2V7h2v1z" fill="currentColor"/>
-                    </svg>
-                    <span className="logo-text">Sales Analyzer</span>
-                </div>
+                {/* ADDED INNER CONTAINER HERE */}
+                <div className="navbar-inner"> 
+                    <div className="logo-section">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="logo-icon">
+                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 14h-2v-6h2v6zm0-8h-2V7h2v1z" fill="currentColor"/>
+                        </svg>
+                        <span className="logo-text">Sales Analyzer</span>
+                    </div>
 
-                <nav className="nav-links">
-                    {['Dashboard', 'Calls', 'Analytics', 'Upload'].map(tab => (
-                        <a
-                            key={tab}
-                            href="#"
-                            className={activeTab === tab ? 'active' : ''}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setActiveTab(tab);
-                            }}
-                        >
-                            {tab}
-                        </a>
-                    ))}
-                </nav>
-                
-                <div className="user-section">
-                    {/* BUTTON RENAMED HERE */}
-                    <button className="btn-primary">Send Transcript</button>
-                    <div className="user-avatar">J</div>
+                    <nav className="nav-links">
+                        {['Dashboard', 'Calls', 'Analytics', 'Upload'].map(tab => (
+                            <a
+                                key={tab}
+                                href="#"
+                                className={activeTab === tab ? 'active' : ''}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setActiveTab(tab);
+                                }}
+                            >
+                                {tab}
+                            </a>
+                        ))}
+                    </nav>
+                    
+                    <div className="user-section">
+                        <button className="btn-primary">Send Transcript</button>
+                        <div className="user-avatar">J</div>
+                    </div>
                 </div>
             </header>
 

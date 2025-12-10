@@ -1,15 +1,15 @@
 /* --- 1. GLOBAL RESET AND TYPOGRAPHY --- */
 :root {
     /* Define Color Palette */
-    --color-primary: #007bff; /* Bright Blue */
-    --color-secondary: #6c757d; /* Medium Gray */
-    --color-success: #28a745; /* Green for success */
-    --color-failure: #dc3545; /* Red for failure */
-    --color-background: #f8f9fa; /* Light Gray Background */
-    --color-content: #ffffff; /* White Card Background */
-    --color-text-dark: #343a40; /* Dark Text */
-    --color-text-muted: #6c757d; /* Muted Text */
-    --color-border: #e9ecef; /* Light Border */
+    --color-primary: #007bff;
+    --color-secondary: #6c757d;
+    --color-success: #28a745;
+    --color-failure: #dc3545;
+    --color-background: #f8f9fa;
+    --color-content: #ffffff;
+    --color-text-dark: #343a40;
+    --color-text-muted: #6c757d;
+    --color-border: #e9ecef;
 }
 
 /* Reset default styles and set primary font */
@@ -24,12 +24,11 @@ body {
     background-color: var(--color-background);
     color: var(--color-text-dark);
     line-height: 1.5;
-    min-height: 100vh; /* Ensure full height */
+    min-height: 100vh;
 }
 
 /* Remove default template styles */
 #root {
-    /* This ensures the root element doesn't interfere with body centering */
     max-width: none; 
     margin: 0;
     padding: 0;
@@ -50,17 +49,16 @@ body {
     z-index: 1000;
 }
 
-/* *** CRITICAL FIX: Ensure navbar content is also centered and respects max-width *** */
-.navbar > * { /* Targets all direct children of the navbar */
-    max-width: 1200px; /* Use a common max-width */
-    margin: 0 auto;
-    padding: 0 30px; /* Applies the horizontal padding to the inner container */
-    height: 100%; /* Ensures inner content fills the navbar height */
+/* NEW CONTAINER INSIDE NAVBAR FOR CENTERING */
+.navbar-inner { 
+    max-width: 1200px; /* Same width as main content */
+    margin: 0 auto; /* Centers the inner content */
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0 30px; /* Padding for inner content */
 }
-/* END CRITICAL FIX */
 
 
 .logo-section {
@@ -125,10 +123,9 @@ body {
 /* --- 3. MAIN CONTENT LAYOUT --- */
 
 .app-container {
-    padding: 80px 30px 30px 30px; /* Space for the fixed header */
-    /* *** FINAL CRITICAL FIX: Ensure the main container is centered *** */
-    max-width: 1200px; /* Use a common max-width to enable centering */
-    margin: 0 auto; /* Centers the content block */
+    padding: 80px 30px 30px 30px;
+    max-width: 1200px; /* Use the same max-width as the navbar-inner */
+    margin: 0 auto; /* This guarantees centering */
 }
 
 .dashboard-title {
