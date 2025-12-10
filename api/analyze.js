@@ -17,12 +17,10 @@ export default async function handler(req, res) {
     }
 
     // 4. Correct API Configuration
-    // Domain: generativelanguage.googleapis.com (Fixes 404/ENOTFOUND)
-    // Model: gemini-2.5-flash (Free-tier friendly model)
     const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
 
-    // 5. Standard Gemini Request Body with CORRECTION
+    // 5. Standard Gemini Request Body with FINAL STRUCTURE FIX
     const body = {
       // The API expects 'contents' to be an array of Content objects.
       contents: [{
@@ -43,14 +41,15 @@ ${transcript}
         }]
       }],
       
-      // *** FIX: Moved parameters directly into the main body object (no 'config' wrapper) ***
-      temperature: 0.7,
-      maxOutputTokens: 500,
+      // *** FINAL FIX: Parameters must be inside 'generationConfig' ***
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      }
       // *** END FIX ***
     };
 
     // 6. Send Request
-    // API key is correctly passed via query parameter (?key=...)
     const response = await fetch(finalUrl, {
       method: "POST",
       headers: {
