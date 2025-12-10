@@ -1,15 +1,15 @@
 /* --- 1. GLOBAL RESET AND TYPOGRAPHY --- */
 :root {
     /* Define Color Palette */
-    --color-primary: #007bff;
-    --color-secondary: #6c757d;
-    --color-success: #28a745;
-    --color-failure: #dc3545;
-    --color-background: #f8f9fa;
-    --color-content: #ffffff;
-    --color-text-dark: #343a40;
-    --color-text-muted: #6c757d;
-    --color-border: #e9ecef;
+    --color-primary: #007bff; /* Bright Blue */
+    --color-secondary: #6c757d; /* Medium Gray */
+    --color-success: #28a745; /* Green for success */
+    --color-failure: #dc3545; /* Red for failure */
+    --color-background: #f8f9fa; /* Light Gray Background */
+    --color-content: #ffffff; /* White Card Background */
+    --color-text-dark: #343a40; /* Dark Text */
+    --color-text-muted: #6c757d; /* Muted Text */
+    --color-border: #e9ecef; /* Light Border */
 }
 
 /* Reset default styles and set primary font */
@@ -49,15 +49,14 @@ body {
     z-index: 1000;
 }
 
-/* NEW CONTAINER INSIDE NAVBAR FOR CENTERING */
+/* Container to hold and space out the header items */
 .navbar-inner { 
-    max-width: 1200px; /* Same width as main content */
-    margin: 0 auto; /* Centers the inner content */
     height: 100%;
+    /* Standard wide spacing for the header items */
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 30px; /* Padding for inner content */
+    padding: 0 30px; 
 }
 
 
@@ -123,9 +122,10 @@ body {
 /* --- 3. MAIN CONTENT LAYOUT --- */
 
 .app-container {
-    padding: 80px 30px 30px 30px;
-    max-width: 1200px; /* Use the same max-width as the navbar-inner */
-    margin: 0 auto; /* This guarantees centering */
+    padding: 80px 30px 30px 30px; 
+    /* This centers the content block on the screen */
+    max-width: 1200px; 
+    margin: 0 auto; 
 }
 
 .dashboard-title {

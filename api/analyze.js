@@ -1,32 +1,37 @@
 export default async function handler(req, res) {
-  try {
-    // 1. Method Check
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Only POST requests allowed." });
-    }
+  try {
+    // 1. Method Check
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Only POST requests allowed." });
+    }
 
-    // 2. Input Validation
-    const { transcript } = req.body;
-    if (!transcript) {
-      return res.status(400).json({ error: "Transcript missing." });
-    }
+    // 2. Input Validation
+    const { transcript } = req.body;
+    if (!transcript) {
+      return res.status(400).json({ error: "Transcript missing." });
+    }
 
-    // 3. Environment Variable Check
-    if (!process.env.GEMINI_KEY) {
-      return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
-    }
+    // 3. Environment Variable Check
+    // NOTE: Using GEMINI_KEY as defined in your code.
+    if (!process.env.GEMINI_KEY) {
+      return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
+    }
 
-    // 4. Correct API Configuration
-    const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-    const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
+    // 4. Correct API Configuration
+    // ----------------------------------------------------------------------
+    // *** CRITICAL CHANGE: Updating model to gemini-3-flash ***
+    // NOTE: The base URL remains the same for V1 endpoints.
+    const modelName = "gemini-3-flash"; 
+    const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+    const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
+    // ----------------------------------------------------------------------
 
-    // 5. Standard Gemini Request Body with FINAL STRUCTURE FIX
-    const body = {
-      // The API expects 'contents' to be an array of Content objects.
-      contents: [{
-        role: "user",
-        parts: [{
-          text: `
+    // 5. Standard Gemini Request Body with FINAL STRUCTURE FIX
+    const body = {
+      contents: [{
+        role: "user",
+        parts: [{
+          text: `
 Analyze the following sales call transcript and provide:
 
 1. Strongest moments (what the rep did well)
@@ -37,48 +42,46 @@ Analyze the following sales call transcript and provide:
 
 Transcript:
 ${transcript}
-          `
-        }]
-      }],
-      
-      // *** FINAL FIX: Parameters must be inside 'generationConfig' ***
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 500,
-      }
-      // *** END FIX ***
-    };
+          `
+        }]
+      }],
+      
+      // Parameters must be inside 'generationConfig'
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      }
+    };
 
-    // 6. Send Request
-    const response = await fetch(finalUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    // 6. Send Request
+    const response = await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
-    // 7. Error Handling (Check for 4xx/5xx from Gemini API)
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API returned error:", errText);
-      // Return a 502 Bad Gateway or 500 with the API's error text
-      return res.status(500).json({ result: `Gemini API error: ${errText}` });
-    }
+    // 7. Error Handling (Check for 4xx/5xx from Gemini API)
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Gemini API returned error:", errText);
+      return res.status(500).json({ result: `Gemini API error: ${errText}` });
+    }
 
-    // 8. Success Response Parsing
-    const data = await response.json();
-    console.log("RAW GEMINI RESPONSE:", JSON.stringify(data, null, 2));
+    // 8. Success Response Parsing
+    const data = await response.json();
+    console.log("RAW GEMINI RESPONSE:", JSON.stringify(data, null, 2));
 
-    // The text is correctly nested in the standard response structure: 
-    // candidates[0].content.parts[0].text
-    const finalText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No text returned from Gemini.";
+    // The text is correctly nested in the standard response structure: 
+    // candidates[0].content.parts[0].text
+    const finalText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No text returned from Gemini.";
 
-    return res.status(200).json({ result: finalText });
+    return res.status(200).json({ result: finalText });
 
-  } catch (err) {
-    // 9. Catch any unexpected server errors (e.g., local network failure)
-    console.error("Server error:", err);
-    return res.status(500).json({ result: `Server Error: ${err.message || "Unknown error"}` });
-  }
+  } catch (err) {
+    // 9. Catch any unexpected server errors (e.g., local network failure)
+    console.error("Server error:", err);
+    return res.status(500).json({ result: `Server Error: ${err.message || "Unknown error"}` });
+  }
 }

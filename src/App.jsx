@@ -165,7 +165,7 @@ function App() {
         <>
             {/* 1. NAVIGATION BAR STRUCTURE */}
             <header className="navbar">
-                {/* ADDED INNER CONTAINER HERE */}
+                {/* Use navbar-inner to spread content and control padding */}
                 <div className="navbar-inner"> 
                     <div className="logo-section">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="logo-icon">
