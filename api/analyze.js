@@ -25,41 +25,50 @@ Analyze the following sales call transcript and provide:
 
 Transcript:
 ${transcript}
-        `,
-      }),
+        `
+      })
     });
 
     const data = await response.json();
 
-    // 🔥 Log the full raw response for debugging
+    // Log raw data
     console.log("FULL OPENAI RAW RESPONSE:", JSON.stringify(data, null, 2));
 
     if (data.error) {
       console.error("OpenAI error:", data.error);
-      return res.status(500).json({ error: data.error });
+      return res.status(500).json({
+        analysis: `OpenAI Error: ${JSON.stringify(data.error)}` // FORCED STRING
+      });
     }
 
-    // 🔥 Extract text safely (covers every response shape)
     let outputText = "";
 
-    try {
-      outputText =
-        data.output?.[0]?.content?.[0]?.text ??
-        data.output_text ??
-        data.choices?.[0]?.text ??
-        JSON.stringify(data);
-    } catch (err) {
-      console.error("Failed extracting output text:", err);
-      outputText = "No valid text returned from OpenAI.";
+    // Extract model output safely
+    if (data.output?.[0]?.content?.[0]?.text) {
+      outputText = data.output[0].content[0].text;
+    } else if (data.output_text) {
+      outputText = data.output_text;
+    } else if (data.choices?.[0]?.text) {
+      outputText = data.choices[0].text;
+    } else {
+      // Last resort — stringify entire response
+      outputText = JSON.stringify(data, null, 2);
     }
 
-    // 🔥 Log final text you will return
+    // SAFETY STEP: ensure it's a string
+    if (typeof outputText !== "string") {
+      outputText = JSON.stringify(outputText);
+    }
+
     console.log("FINAL OUTPUT TEXT:", outputText);
 
     res.status(200).json({ analysis: outputText });
 
   } catch (err) {
     console.error("Server error:", err);
-    res.status(500).json({ error: "Internal server error" });
+
+    res.status(500).json({
+      analysis: `Server Error: ${err.message || "Unknown error"}`
+    });
   }
 }
