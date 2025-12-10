@@ -17,8 +17,13 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
         }
 
-        // 1. Initialize the SDK
-        const ai = new GoogleGenAI({ apiKey });
+        // 1. Initialize the SDK with the V2 endpoint base URL
+        // This is the CRITICAL change to use newer models like gemini-3.5-flash
+        const ai = new GoogleGenAI({ 
+            apiKey: apiKey,
+            // Explicitly setting the V2 endpoint base URL
+            baseURL: "https://generativeai.googleapis.com/v1" 
+        });
 
         const prompt = `
             Analyze the following sales call transcript and provide:
@@ -33,9 +38,9 @@ export default async function handler(req, res) {
             ${transcript}
         `;
 
-        // 2. Use the correct model name with the SDK
+        // 2. Use the Gemini 3.5 Flash model name
         const response = await ai.models.generateContent({
-            model: "gemini-3.5-flash", // <-- Using the latest working model name
+            model: "gemini-3.5-flash", // <-- Should now be recognized by the V2 endpoint
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: {
                 temperature: 0.7,
@@ -43,7 +48,6 @@ export default async function handler(req, res) {
             },
         });
 
-        // The SDK response structure is cleaner
         const finalText = response.text || "No text returned from Gemini.";
 
         return res.status(200).json({ result: finalText });
@@ -53,9 +57,9 @@ export default async function handler(req, res) {
         
         let errorMessage = "An unknown server error occurred.";
         
-        // The SDK often wraps API errors nicely
-        if (error.status && error.statusText) {
-             errorMessage = `Gemini API Error: ${error.statusText}`;
+        // Handle specific error codes if available
+        if (error.response && error.response.statusText) {
+             errorMessage = `Gemini API Error: ${error.response.statusText}`;
         } else if (error.message) {
             errorMessage = `SDK Error: ${error.message}`;
         }
