@@ -16,9 +16,10 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "GEMINI_KEY not found in environment." });
     }
 
-    // 4. Correct API Configuration (Free Tier Model)
-    // Using 'gemini-2.5-flash' for generous free-tier limits and good speed/performance.
-    const baseUrl = "https://generativeai.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    // 4. *** CRITICAL FIX APPLIED HERE ***
+    // The correct REST API domain for Google AI Studio API Keys is generativelanguage.googleapis.com, 
+    // not generativeai.googleapis.com, which was causing the 404 for this specific endpoint path.
+    const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const finalUrl = `${baseUrl}?key=${process.env.GEMINI_KEY}`;
 
     // 5. Standard Gemini Request Body
