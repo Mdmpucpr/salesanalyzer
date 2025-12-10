@@ -36,7 +36,22 @@ ${transcript}
       return res.status(500).json({ error: data.error });
     }
 
-    res.status(200).json({ analysis: data.output_text });
+    // Extract the response text properly using the new API structure
+    let outputText = "";
+    if (
+      data.output &&
+      Array.isArray(data.output) &&
+      data.output[0]?.content &&
+      data.output[0].content[0]?.text
+    ) {
+      outputText = data.output[0].content[0].text;
+    } else {
+      console.error("Unexpected OpenAI response format:", data);
+      return res.status(500).json({ error: "Invalid response format" });
+    }
+
+    res.status(200).json({ analysis: outputText });
+
   } catch (err) {
     console.error("Server error:", err);
     res.status(500).json({ error: "Internal server error" });
