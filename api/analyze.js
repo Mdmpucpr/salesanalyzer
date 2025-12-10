@@ -5,20 +5,18 @@ export default async function handler(req, res) {
     }
 
     const { transcript } = req.body;
-
     if (!transcript) {
       return res.status(400).json({ error: "Transcript missing." });
     }
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.generativeai.google/v1beta2/models/gemini-3-large:generateText", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.GEMINI_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        input: `
+        prompt: `
 Analyze the following sales call transcript and provide:
 
 1. Strongest moments (what the rep did well)
@@ -29,38 +27,22 @@ Analyze the following sales call transcript and provide:
 
 Transcript:
 ${transcript}
-        `
+        `,
+        temperature: 0.7, // adjust creativity
+        maxOutputTokens: 500
       })
     });
 
     const data = await response.json();
+    console.log("RAW GEMINI RESPONSE:", JSON.stringify(data, null, 2));
 
-    console.log("RAW OPENAI RESPONSE:", JSON.stringify(data, null, 2));
-
-    let finalText = "";
-
-    // Responses API extraction
-    if (data.output?.[0]?.content?.[0]?.text) {
-      finalText = data.output[0].content[0].text;
-    } else if (data.output_text) {
-      finalText = data.output_text;
-    } else if (data.choices?.[0]?.text) {
-      finalText = data.choices[0].text;
-    } else {
-      finalText = JSON.stringify(data, null, 2);
-    }
-
-    if (typeof finalText !== "string") {
-      finalText = JSON.stringify(finalText);
-    }
+    // Gemini response parsing
+    const finalText = data?.candidates?.[0]?.content || JSON.stringify(data, null, 2);
 
     return res.status(200).json({ result: finalText });
 
   } catch (err) {
     console.error("Server error:", err);
-
-    return res.status(500).json({
-      result: `Server Error: ${err.message || "Unknown error"}`
-    });
+    return res.status(500).json({ result: `Server Error: ${err.message || "Unknown error"}` });
   }
 }
